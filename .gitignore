@@ -13,4 +13,4 @@ results/*
 !data/CustomFreeLiving.mat
 
 # Allow final trained model (50-feature subset only)
-!results/best50_features/**
+!results/models/**
