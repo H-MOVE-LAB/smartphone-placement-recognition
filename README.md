@@ -1,6 +1,3 @@
----
-
-````markdown
 # Smartphone Placement Recognition (SPR)
 
 This repository provides the code, trained model, and example datasets used in our work on **smartphone placement recognition (SPR)** based on inertial sensing and machine learning.  
