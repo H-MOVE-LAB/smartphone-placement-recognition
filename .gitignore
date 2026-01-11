@@ -2,15 +2,11 @@
 # Data and results (ignored by default)
 # ----------------------------
 data/*
-results/*
 
 # Keep folder structure
 !data/.gitkeep
-!results/.gitkeep
 
 # Allow example datasets
 !data/CustomLab.mat
 !data/CustomFreeLiving.mat
 
-# Allow final trained model (50-feature subset only)
-!results/models/**
