@@ -28,31 +28,27 @@ smartphone-placement-recognition/
 │
 ├── src/
 │   ├── methods/
-│   │   └── train_SPR/
-│   │       ├── main_train_ensemble.m
-│   │       └── feature_selection_and_training.m
+│   │   └── train_SPR.m
 │   │
 │   └── utils/
-│       ├── evaluateModelSummary.m
-│       ├── evaluateModelDetailed.m
-│       ├── reduceLabels.m
-│       ├── computeMetrics.m
-│       └── other helper functions
+│       ├── computeModelSummary.m
+│       ├── evaluateModelVisualization.m
+│       └── reduceLabels.m
 │
 ├── scripts/
 │   └── test_SPR.m
 │
 ├── data/
 │   ├── CustomLab.mat
-│   ├── CustomFreeLiving.mat
-│   └── README.md
+│   └── CustomFreeLiving.mat
 │
 ├── results/
-│   ├── best_model_50_features/
-│   │   ├── trainedModel.mat
-│   │   ├── selected_features.mat
-│   │   └── training_info.txt
-│   └── README.md
+│   ├── models/
+│   |    ├── best_model_50_features/
+│   |       ├── ConfusionMatrix.fig
+│   |       ├── ensModel.mat
+│   |       └── FeatSel_Results.mat
+│   └── performance_FS.xlsx
 │
 ├── .gitignore
 ├── LICENSE
