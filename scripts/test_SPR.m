@@ -1,0 +1,62 @@
+%% Smartphone Placement Recognition – In-Lab External Validation
+% This script evaluates a pre-trained placement recognition model on the
+% Custom Laboratory dataset (external validation).
+%
+% Author: Paolo Tasca
+% -------------------------------------------------------------------------
+
+clear; close all; clc;
+
+addpath(fullfile("..","src","utils"))
+
+%% -------------------- Configuration -------------------------------------
+labDataFile   = fullfile('..','data','customLab.mat');
+
+modelFile     = fullfile('..','results','models','best50_features','ensModel.mat'); % trained model
+featSelFile   = fullfile('..','results','models','best50_features','FeatSel_Results.mat'); % selected feature indices
+
+minMeanGyr    = 20;   % threshold to remove low-motion windows
+
+%% -------------------- Load data -----------------------------------------
+load(labDataFile);     % loads finalTable
+data = finalTable;
+
+%% -------------------- Load model and feature selection ------------------
+load(modelFile);       % loads ecocModel
+load(featSelFile);     % loads top_features_idx
+
+%% -------------------- Data cleaning -------------------------------------
+% Remove axial cross-correlation features (dataset-specific)
+data(:,88:93) = [];
+
+% Remove low-motion windows
+data(data.MeanGyr < minMeanGyr, :) = [];
+
+%% -------------------- Format test set -----------------------------------
+Xtest = data{:, top_features_idx};
+Ytest = categorical(data.Position);
+subjectIDs = data.SubjectID; 
+
+%% -------------------- Prediction ----------------------------------------
+fprintf('\nRunning prediction on In-Lab dataset...\n');
+Ypred = predict(ensModel, Xtest);
+
+%% -------------------- Evaluation: 6 classes -----------------------------
+fprintf('\n=== 6-class evaluation ===\n');
+evaluateModelVisualization(Ypred, Ytest, 'SVM-ECOC (6 classes)');
+
+%% -------------------- Reduced-class evaluations -------------------------
+% Map labels
+Ytest5 = reduceLabels(Ytest, 5);
+Ypred5 = reduceLabels(Ypred, 5);
+
+Ytest4 = reduceLabels(Ytest, 4);
+Ypred4 = reduceLabels(Ypred, 4);
+
+fprintf('\n=== 5-class evaluation ===\n');
+evaluateModelVisualization(Ypred5, Ytest5, 'SVM-ECOC (5 classes)');
+
+fprintf('\n=== 4-class evaluation ===\n');
+evaluateModelVisualization(Ypred4, Ytest4, 'SVM-ECOC (4 classes)');
+
+fprintf('\nIn-Lab external validation completed successfully.\n');
