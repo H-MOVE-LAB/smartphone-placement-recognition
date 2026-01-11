@@ -1,18 +1,16 @@
 # ----------------------------
-# Never version data/results
+# Data and results (ignored by default)
 # ----------------------------
 data/*
-!data/.gitkeep
-
 results/*
+
+# Keep folder structure
+!data/.gitkeep
 !results/.gitkeep
 
-# ----------------------------
-# MATLAB temporary/build files
-# ----------------------------
-*.asv
-*.m~
-*.autosave
-slprj/
-codegen/
-*.mex*
+# Allow example datasets
+!data/CustomLab.mat
+!data/CustomFreeLiving.mat
+
+# Allow final trained model (50-feature subset only)
+!results/best50_features/**
