@@ -1,0 +1,18 @@
+# ----------------------------
+# Never version data/results
+# ----------------------------
+data/*
+!data/.gitkeep
+
+results/*
+!results/.gitkeep
+
+# ----------------------------
+# MATLAB temporary/build files
+# ----------------------------
+*.asv
+*.m~
+*.autosave
+slprj/
+codegen/
+*.mex*
