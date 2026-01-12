@@ -153,7 +153,7 @@ A **two-stage feature selection** strategy is adopted:
 - Produces a ranked list of features
 
 #### Stage 2 – Wrapper Selection
-- Progressive inclusion of features (e.g., 10 → 20 → ... → 50)
+- Progressive inclusion of features (e.g., 10 → 20 → 30 → ... → 156)
 - Model performance evaluated for each subset
 - Optimal subset selected based on accuracy on held-out CS subjects
 
@@ -163,7 +163,7 @@ A **two-stage feature selection** strategy is adopted:
 
 - Classifier: **Decision-tree ensemble (AdaBoostM2)**
 - Training performed using MATLAB `fitcensemble`
-- Hyperparameters optimized via **Bayesian Optimization**:
+- Hyperparameters optimized via [Bayesian Optimization](https://www.mathworks.com/help/stats/bayesian-optimization-algorithm.html):
   - Number of learners
   - Learning rate
   - Maximum number of splits
@@ -232,11 +232,3 @@ Politecnico di Torino
 
 ---
 
-Se vuoi, nel prossimo step posso:
-
-* adattare il README per **reviewer-friendly wording**
-* aggiungere una sezione **Reproducibility**
-* controllare la **coerenza terminologica** con il journal paper (SPR vs SLR, placement vs location)
-* suggerirti **badges GitHub** (license, MATLAB, DOI, ecc.)
-
-Dimmi tu 👍
