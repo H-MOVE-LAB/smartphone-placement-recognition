@@ -106,17 +106,6 @@ smartphone-placement-recognition/
 │   │       ├── ensModel.mat         # Trained ensemble model
 │   │       └── FeatSel_Results.mat  # Selected features
 │   └── performance_FS.xlsx          # Performance summary
-=======
-│   ├── CustomLab.mat
-│   └── CustomFreeLiving.mat
-│
-├── results/
-│   ├── models/
-│   |    ├── best_model_50_features/
-│   |       ├── ConfusionMatrix.fig
-│   |       ├── ensModel.mat
-│   |       └── FeatSel_Results.mat
-│   └── performance_FS.xlsx
 │
 ├── .gitignore
 ├── LICENSE
