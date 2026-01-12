@@ -1,258 +1,223 @@
-# Smartphone Placement Recognition (SPR)
+# Smartphone Placement Recognition for Real-World Gait Analysis
 
-This repository provides the code, trained model, and example datasets used in our work on **smartphone placement recognition (SPR)** based on inertial sensing and machine learning.  
-The goal is to automatically recognize the **physical placement of a smartphone on the body** (e.g., trouser pocket, bag, hand, etc.) using features extracted from inertial signals.
-
-The repository is designed to support:
-- **Reproducibility** of the training and evaluation pipeline  
-- **Transparency** of feature selection and hyperparameter tuning  
-- **Reusability** of the framework on external datasets  
+This repository provides the code, data structure, and trained models used for **smartphone placement recognition (SPR)** during walking, as presented in our work on real-world gait analysis.  
+The goal is to automatically recognize the **body placement of a smartphone** using inertial data, enabling more reliable and scalable gait assessment in free-living conditions.
 
 ---
 
 ## 📌 Objective
 
-Smartphone placement recognition is a fundamental step for reliable activity recognition and digital health applications, as sensor signals strongly depend on device placement.
+Smartphone placement strongly influences gait-derived metrics (e.g., step count, stride length, variability).  
+This project aims to:
 
-The objectives of this project are:
-- To develop a **robust SPR framework** based on handcrafted features
-- To evaluate generalization across subjects and datasets
-- To provide a **trained reference model** and example data for external validation
+- Automatically recognize smartphone placement during **level walking**
+- Operate in **heterogeneous, real-world, unsupervised conditions**
+- Support **robust gait analysis pipelines** by enabling placement-aware processing
+
+The proposed framework is designed to generalize across:
+- Subjects
+- Environments (laboratory vs free-living)
+- Smartphone hardware and operating systems
 
 ---
 
-## 📁 Repository Structure
+## 📱 Smartphone Placements
 
-```text
+During acquisitions, **all smartphone locations recorded data simultaneously**.  
+Six common placements were considered:
+
+- **Hand-held (H)**: Held in the hand during natural arm swing  
+- **Shoulder Bag (SB)**: Carried in a shoulder bag  
+- **Front Pocket (FP)**: Front pocket of trousers or jeans  
+- **Back Pocket (BP)**: Back pocket of trousers or jeans  
+- **Coat Pocket (CP)**: Side pocket of a jacket or coat  
+- **Lower-Back (LB)**: Belt-fixed at the level of the **5th lumbar vertebra (L5)**, landscape orientation  
+
+These placements reflect frequent real-life usage and introduce increasing levels of motion variability, with bag-based placements being the most challenging.
+
+---
+
+## 🧭 Reference System: INDIP
+
+Data collection relied on the **INDIP system (INertial module with DIstance sensors and Pressure insoles)** as reference system.
+
+> Salis et al., 2023 – *Frontiers in Bioengineering and Biotechnology*  
+> DOI: 10.3389/fbioe.2023.1143248
+
+The INDIP system is a wearable multi-sensor platform for real-world gait analysis, extensively validated and adopted in multiple studies.
+
+**Adopted configuration:**
+- 3 magneto-IMUs (both feet + lower back)
+- 2 pressure insoles
+- Time-of-flight distance sensors
+
+To facilitate synchronization:
+- The **Lower-Back smartphone** and the **lower-back INDIP IMU** were **co-located at L5**
+
+This configuration enables reliable gait-sequence detection and alignment between reference and smartphone signals.
+
+---
+
+## 📂 Repository Structure
+
+```
+
 smartphone-placement-recognition/
 │
 ├── src/
 │   ├── methods/
-│   │   └── train_SPR/
-│   │       ├── main_train_ensemble.m
-│   │       └── feature_selection_and_training.m
+│   │   └── train_SPR.m              # Feature selection + model training
 │   │
 │   └── utils/
-│       ├── evaluateModelSummary.m
-│       ├── evaluateModelDetailed.m
-│       ├── reduceLabels.m
-│       ├── computeMetrics.m
-│       └── other helper functions
+│       ├── computeModelSummary.m    # Metrics aggregation
+│       ├── evaluateModelVisualization.m  # Confusion matrices & plots
+│       └── reduceLabels.m           # Label reduction (6 → 5 → 4 classes)
 │
 ├── scripts/
-│   └── test_SPR.m
+│   └── test_SPR.m                   # Testing on Custom Laboratory dataset
 │
 ├── data/
-│   ├── CustomLab.mat
-│   ├── CustomFreeLiving.mat
-│   └── README.md
+│   ├── CustomLab.mat                # Laboratory walking features
+│   └── CustomFreeLiving.mat         # Free-living walking features
 │
 ├── results/
-│   ├── best_model_50_features/
-│   │   ├── trainedModel.mat
-│   │   ├── selected_features.mat
-│   │   └── training_info.txt
-│   └── README.md
+│   ├── models/
+│   │   └── best_model_50_features/
+│   │       ├── ConfusionMatrix.fig
+│   │       ├── ensModel.mat         # Trained ensemble model
+│   │       └── FeatSel_Results.mat  # Selected features
+│   └── performance_FS.xlsx          # Performance summary
 │
 ├── .gitignore
 ├── LICENSE
 └── README.md
-````
 
----
-
-## 📊 Dataset Description
-
-### Feature Tables (`.mat` files)
-
-Each dataset is stored as a MATLAB table, where:
-
-* **Rows** correspond to fixed-length signal windows
-* **Columns** correspond to extracted features and metadata
-
-### Feature composition
-
-Features are extracted from accelerometer and gyroscope signals and include:
-
-* Time-domain statistics (mean, variance, RMS, etc.)
-* Frequency-domain descriptors
-* Signal magnitude features
-* Correlation-based features (removed in some experiments)
-
-### Metadata columns
-
-The last columns of each table include:
-
-* `Position` → ground-truth smartphone placement label
-* `SubjectID` → anonymized subject identifier
-* (Optional) session or test identifiers
-
-Example:
-
-```matlab
-features = data{:, 1:end-2};
-labels   = data.Position;
-subjects = data.SubjectID;
 ```
 
 ---
 
-## 🧠 Training Pipeline
+## 📊 Data Format
 
-The training procedure is implemented in:
+Both `CustomLab.mat` and `CustomFreeLiving.mat` contain MATLAB tables with:
 
-```
-src/methods/train_SPR/
-```
+- **Rows**: 10-second walking windows
+- **Columns**:
+  - Orientation-invariant accelerometer and gyroscope magnitude features
+  - Metadata:
+    - `Position` (ground-truth smartphone placement)
+    - `SubjectID`
 
-### 1. Data Cleaning
-
-* Removal of windows with low motion intensity
-  (e.g., `MeanGyr < threshold`)
-* Subject-wise split into:
-
-  * **Construction Set (CS)**
-  * **Test Set (TS)**
-
-This prevents subject leakage between training and testing.
+Only **walking segments** are included.  
+Stationary windows are excluded based on angular velocity thresholds.
 
 ---
 
-### 2. Feature Selection (MRMR)
+## ⚙️ Training Pipeline
 
-Feature selection is performed using **Minimum Redundancy Maximum Relevance (MRMR)**:
+The training pipeline is implemented in `src/methods/train_SPR.m` and consists of:
 
-```matlab
-[idx, scores] = fscmrmr(Xtrain, Ytrain);
-```
-
-Experiments are conducted by progressively increasing the number of selected features
-(e.g., 10, 20, …, 150).
-
-The final released model uses the **top 50 features**, which provided the best trade-off between performance and model complexity.
+### 1️⃣ Subject-Independent Split
+- Subjects are randomly divided into:
+  - **Construction Set (CS)**: used for feature selection and model tuning
+  - **Test Set (TS)**: held-out subjects for evaluation
+- This ensures **subject-independent validation**
 
 ---
 
-### 3. Model Architecture
+### 2️⃣ Feature Selection
 
-The SPR framework relies on ensemble classifiers (e.g., Random Forest, AdaBoost, or ECOC-SVM depending on configuration).
+A **two-stage feature selection** strategy is adopted:
+
+#### Stage 1 – MRMR Ranking
+- Maximum Relevance Minimum Redundancy (MRMR)
+- Applied **only on CS data**
+- Produces a ranked list of features
+
+#### Stage 2 – Wrapper Selection
+- Progressive inclusion of features (e.g., 10 → 20 → ... → 50)
+- Model performance evaluated for each subset
+- Optimal subset selected based on accuracy on held-out CS subjects
 
 ---
 
-### 4. Hyperparameter Tuning
+### 3️⃣ Model and Hyperparameter Optimization
 
-Hyperparameters are optimized using **Bayesian Optimization** (`bayesopt`) in MATLAB.
+- Classifier: **Decision-tree ensemble (AdaBoostM2)**
+- Training performed using MATLAB `fitcensemble`
+- Hyperparameters optimized via **Bayesian Optimization**:
+  - Number of learners
+  - Learning rate
+  - Maximum number of splits
+- Optimization objective: **classification accuracy**
+- Maximum of **50 optimization iterations**
 
-Optimized parameters include:
+This process balances performance and overfitting robustness.
 
-* Number of learning cycles
-* Learning rate
-* Maximum number of tree splits
+---
 
-The objective function is the cross-validated classification loss on the Construction Set.
+### 4️⃣ Classification Tasks
 
-Example:
+The framework supports multiple granularity levels:
 
-```matlab
-rfModel = fitcensemble( ...
-    Xtrain, Ytrain, ...
-    'Method', 'AdaBoostM2', ...
-    'OptimizeHyperparameters', ...
-    {'NumLearningCycles','LearnRate','MaxNumSplits'}, ...
-    'HyperparameterOptimizationOptions', struct( ...
-        'Optimizer','bayesopt', ...
-        'MaxObjectiveEvaluations',50));
-```
+- **6-class**: All placements distinct  
+- **5-class**: Front + Back Pocket merged  
+- **4-class**: All pockets merged  
 
-Only the **final optimized model** is stored in this repository.
+This allows analysis of how placement granularity affects recognition performance.
 
 ---
 
 ## 📈 Evaluation
 
-Model performance is evaluated using:
+Evaluation includes:
 
-* Global (micro) accuracy
-* Macro-averaged precision and recall
-* Per-class:
+- Overall accuracy (micro)
+- Per-class precision and recall
+- Balanced accuracy
+- Confusion matrices (row- and column-normalized)
 
-  * Precision
-  * Recall
-  * Balanced accuracy
-
-Two evaluation functions are provided:
-
-* `evaluateModelSummary.m` → concise reporting
-* `evaluateModelDetailed.m` → full metric vector for logging and statistical analysis
-
-Evaluations are also performed on:
-
-* Reduced **5-class**
-* Reduced **4-class** problem formulations
+Testing is performed:
+- Internally (Custom datasets)
+- Externally (public datasets, not included here)
 
 ---
 
-## 🧪 External Validation
+## 📚 Publications
 
-The script:
+### Conference Paper (available)
+> **G. Trentadue, P. Tasca, et al.**  
+> *Automatic recognition of smartphone location with machine learning for real-world gait analysis*  
+> **Gait & Posture**, Volume 122 (Supplement), 2025  
+> DOI: 10.1016/j.gaitpost.2025.08.032  
 
-```text
-scripts/test_SPR.m
-```
-
-allows testing the trained SPR model on:
-
-* Custom laboratory datasets
-* Free-living datasets
-
-This enables evaluation of **cross-dataset generalization**.
+### Journal Paper
+A full journal extension is **currently under preparation** (coming soon).
 
 ---
 
-## 📦 Released Results
+## 📄 License
 
-To limit repository size, only:
-
-* Example datasets
-* The **best-performing trained model (50 features)**
-
-are included.
-
-Intermediate models and exploratory results are intentionally excluded.
-
----
-
-## 📚 Related Publications
-
-If you use this code, please cite:
-
-> **[Authors]**
-> *Smartphone Placement Recognition Using Inertial Sensing and Ensemble Learning*
-> *Journal / Conference*, Year
-
-(The reference will be updated upon publication.)
-
----
-
-## 📜 License
-
-This project is released under the **MIT License**.
-You are free to use, modify, and distribute the code, provided proper credit is given.
+This project is released under the **MIT License**.  
+See the `LICENSE` file for details.
 
 ---
 
 ## 📬 Contact
 
-For questions, issues, or collaborations, please open an issue or contact the authors.
+For questions, collaborations, or clarifications:
 
+**Paolo Tasca**  
+📧 paolo.tasca@polito.it  
+Politecnico di Torino
 ```
 
 ---
 
-Se vuoi, nel prossimo passo posso:
-- scrivere i **README separati per `data/` e `results/`**
-- adattare il testo **per i reviewer di *Gait & Posture***
-- aggiungere una sezione **“Reproducibility checklist”** (molto apprezzata dai journal)
+Se vuoi, nel prossimo step posso:
+
+* adattare il README per **reviewer-friendly wording**
+* aggiungere una sezione **Reproducibility**
+* controllare la **coerenza terminologica** con il journal paper (SPR vs SLR, placement vs location)
+* suggerirti **badges GitHub** (license, MATLAB, DOI, ecc.)
 
 Dimmi tu 👍
-```
