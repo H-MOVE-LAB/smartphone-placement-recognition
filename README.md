@@ -72,6 +72,12 @@ smartphone-placement-recognition/
 │       ├── computeModelSummary.m    # Metrics aggregation
 │       ├── evaluateModelVisualization.m  # Confusion matrices & plots
 │       └── reduceLabels.m           # Label reduction (6 → 5 → 4 classes)
+│   │   └── train_SPR.m
+│   │
+│   └── utils/
+│       ├── computeModelSummary.m
+│       ├── evaluateModelVisualization.m
+│       └── reduceLabels.m
 │
 ├── scripts/
 │   └── test_SPR.m                   # Testing on Custom Laboratory dataset
@@ -87,6 +93,17 @@ smartphone-placement-recognition/
 │   │       ├── ensModel.mat         # Trained ensemble model
 │   │       └── FeatSel_Results.mat  # Selected features
 │   └── performance_FS.xlsx          # Performance summary
+=======
+│   ├── CustomLab.mat
+│   └── CustomFreeLiving.mat
+│
+├── results/
+│   ├── models/
+│   |    ├── best_model_50_features/
+│   |       ├── ConfusionMatrix.fig
+│   |       ├── ensModel.mat
+│   |       └── FeatSel_Results.mat
+│   └── performance_FS.xlsx
 │
 ├── .gitignore
 ├── LICENSE
