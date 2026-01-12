@@ -49,12 +49,25 @@ The INDIP system is a wearable multi-sensor platform for real-world gait analysi
 **Adopted configuration:**
 - 3 magneto-IMUs (both feet + lower back)
 - 2 pressure insoles
-- Time-of-flight distance sensors
 
 To facilitate synchronization:
 - The **Lower-Back smartphone** and the **lower-back INDIP IMU** were **co-located at L5**
 
 This configuration enables reliable gait-sequence detection and alignment between reference and smartphone signals.
+
+---
+### Sensor Orientation and Reference Frames
+
+During data acquisition, **smartphones were carried by participants with no constraints on orientation**. This design choice reflects real-world usage conditions, where smartphone orientation can vary substantially across users and over time. Consequently, all features adopted in this work were designed to be **orientation-invariant**, relying on acceleration and angular velocity magnitudes.
+
+In contrast, the **INDIP reference system sensors followed a standardized orientation convention**. The magneto-inertial measurement units (MIMUs) of the INDIP system were mounted according to the reference frames defined by the Mobilise-D consortium, ensuring consistency and reproducibility across subjects and studies. Sensor axes were aligned following the conventions described in:
+
+> Palmerini, L., Reggi, L., Bonci, T. *et al.*  
+> **Mobility recorded by wearable devices and gold standards: the Mobilise-D procedure for data standardization.**  
+> *Scientific Data*, 10, 38 (2023).  
+> https://doi.org/10.1038/s41597-023-01930-9
+
+This distinction highlights the dual role of the INDIP system as a **gold-standard reference**, requiring strict control of sensor orientation, and smartphones as **unconstrained consumer devices**, whose placement and orientation variability must be addressed algorithmically.
 
 ---
 
