@@ -1,0 +1,65 @@
+================================================================================
+SMARTPHONE LOCATION RECOGNITION: FEATURE SELECTION AND DATASET STRUCTURE
+================================================================================
+
+1. DATASET OVERVIEW
+-------------------
+The dataset is structured as a MATLAB table containing 178 columns. 
+The data is derived from tri-axial accelerometer (Acc) and gyroscope (Gyr) 
+signals, processed using 10-second non-overlapping windows.
+
+- Columns 1 to 156: Signal features (Time, Frequency, and Time-Frequency domains).
+- Columns 157 to 178: Experimental metadata and ground truth (e.g., Position, 
+  Activity, SubjectID, DeviceModel).
+
+2. FEATURE SELECTION PROCESS
+----------------------------
+To optimize classification performance and reduce dimensionality, the original 
+feature space was reduced as follows (see scripts/test_SPR.m):
+
+A. Initial Exclusion: Columns 88 to 93 (representing cross-correlation 
+   coefficients between sensor axes) were excluded from the training phase.
+B. Final Selection: A subset of 50 high-impact features was selected based on 
+   feature importance ranking. These 50 variables form the input vector for the 
+   recognition model.
+
+3. DESCRIPTION OF THE 50 SELECTED FEATURES
+------------------------------------------
+NOTE: for the precise implementation of features computation refer to src/utils/extractFeaturesAsTable_v3.m
+
+[WAVELET DOMAIN FEATURES (CWT - Continuous Wavelet Transform)]
+Extracted across 8 frequency bands (B1 to B8) to capture non-stationary dynamics.
+
+- CWT_Mean_Acc/Gyr_Bx: Statistical mean of the wavelet coefficients in band x.
+- CWT_Eng_Acc/Gyr_Bx: Total energy (sum of squares) of coefficients in band x.
+- CWT_Std_Acc/Gyr_Bx: Standard deviation (variability) of coefficients in band x.
+- CWT_Entropy_Acc/Gyr_Bx: Shannon entropy of the wavelet energy distribution.
+
+[FREQUENCY DOMAIN FEATURES (FFT Based)]
+- En1 to En10_Acc/Gyr: Spectral energy calculated within specific frequency bins.
+- SpecEntropyAcc/Gyr: Spectral entropy, measuring the complexity of the 
+  power spectrum distribution.
+- MedianFreqAcc: Median frequency of the power spectral density.
+- MeanFreqGyr: Average frequency weighted by the power spectrum.
+- DomPowerAcc/Gyr: Power level of the dominant frequency component.
+- HarmonicRatioAcc: Ratio measuring signal periodicity vs. noise.
+
+[TIME DOMAIN & STATISTICAL FEATURES]
+- MeanAcc/Gyr: Average magnitude of the sensor vector.
+- VarGyr: Variance of the gyroscope signal (intensity of rotation).
+- SkewAcc/Gyr: Skewness (measure of distribution asymmetry).
+- KurtGyr: Kurtosis (measure of "peakedness" or outliers in the distribution).
+- IQRGyr: Interquartile Range, providing a robust measure of signal spread.
+- MedCrossRateAcc/Gyr: Frequency of signal crossings over the median value.
+- NumPeaksGyr: Number of local maxima (peaks) detected within the 10s window.
+- ACF10_Gyr: 10th coefficient of the Autocorrelation Function.
+- GyroAccCorr: Correlation coefficient between the magnitudes of the 
+  accelerometer and gyroscope.
+
+4. METADATA SUMMARY
+-------------------
+The primary target variable is 'Position' (col. 164), which labels the location 
+of the device on the body (e.g., hand, pocket, bag). Other metadata include 
+demographic data (Age, Gender) and hardware specs (DeviceModel, OS).
+
+================================================================================
